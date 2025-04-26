@@ -8,7 +8,7 @@ Fichiers:
 - [cry-me-a-river.py](cry-me-a-river.py) 
 
 
-Auteur : sheidan
+Auteur : [Cryptanalyse](https://twitter.com/Cryptanalyse)
 
 
 Origine : [Cry Me a River](https://hackropole.fr/fr/challenges/crypto/fcsc2023-crypto-cry-me-a-river/)
