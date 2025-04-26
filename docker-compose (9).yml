@@ -1,0 +1,5 @@
+services:
+  cry-me-a-river:
+    image: anssi/fcsc2023-crypto-cry-me-a-river:latest
+    ports:
+      - "4000:4000"
