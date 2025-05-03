@@ -20,12 +20,12 @@ Origine : [Cry Me a River](https://hackropole.fr/fr/challenges/crypto/fcsc2023-c
 > http://localhost
 
 #### tentez 
-> nc cry-me-a-river.cyrhades.fr:4000
+> nc cry-me-a-river.cyrhades.fr 4000
 
 -----------
 
 ## Ou directement avec netcat
-> nc localhost:4000
+> nc localhost 4000
 
 
 -----------
