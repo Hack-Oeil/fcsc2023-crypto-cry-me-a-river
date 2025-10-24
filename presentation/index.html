@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="fr">
+    <meta charset="UTF-8">
+    <!--Page Title-->
+    <title>Hack-Oeil - Les CTFs de Cyrhades</title>
+    <!--Meta Keywords and Description-->
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <link rel="shortcut icon" href="./assets/images/favicon.ico" title="Favicon" />
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="./assets/css/github.min.css">
+    <script src="./assets/js/highlight.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Vérifie si la fenêtre est dans une iframe
+            if (window.self !== window.top) {
+                document.querySelectorAll('a').forEach((link) => {
+                    link.addEventListener('click', (event) => {
+                        const a = event.target.closest('a[href^="http"]');
+                        if (a) {
+                            event.preventDefault();
+                            window.parent.postMessage({
+                                type: "open-external",
+                                url: a.href
+                            }, "*");
+                        }
+                    });
+                });
+            }
+            // Active la coloration syntaxique :
+            if (window.hljs) {
+                hljs.highlightAll();
+            } else {
+                console.error("Highlight.js non chargé !");
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+        <!--Main Content Area-->
+        <main id="content">
+            <!--Ctf-->
+            <section class="ctf scrollto">
+                <article class="row clearfix">
+                    <div class="col-1">
+                        <div class="section-heading">
+                            <h3>Challenge #381</h3>
+                            <h2 class="section-title">Cry Me a River</h2>
+                            <p>Justin a implémenté son algorithme de signature électronique et vous met au défi de le
+                                casser.
+                                <br />
+                                <img src="./assets/images/meme-cry-me-a-river.jpg">
+                            </p>
+                            <h4>Fichier à étudier</h4>
+                            <p>
+                                - cry-me-a-river.py
+                            </p>
+                            <pre><code class="language-python">import os
+from hashlib import sha512
+from fastecdsa.curve import P521
+
+def H(m):
+    ctx = sha512()
+    ctx.update(m)
+    return ctx.digest()
+
+class Random:
+    def __init__(self):
+        self.state = int.from_bytes(os.urandom(16), "little")
+        self.a = 200565257846616591441313188858237974233
+        self.c = 1
+        self.m = 128
+
+    def randint(self):
+        r = self.state
+        self.state = (self.a * self.state + self.c) % 2 ** self.m
+        return r
+
+    def nonce(self):
+        r = 0
+        r = (r << self.m) | self.randint()
+        r = (r << self.m) | self.randint()
+        r = (r << self.m) | self.randint()
+        r = (r << self.m) | self.randint()
+        return r
+
+class ECDSA:
+    def __init__(self):
+        self.C = P521
+        self.rng = Random()
+        self.sk = int.from_bytes(os.urandom(48), "little")
+        self.Q = self.sk * self.C.G
+        assert self.Q.IDENTITY_ELEMENT != self.Q
+
+    def sign(self, msg):
+        k = self.rng.nonce()
+        h = int.from_bytes(H(msg), "little")
+        P = k * self.C.G
+        r = P.x % self.C.q
+        assert r > 0, "Error: cannot sign this message."
+
+        s = (pow(k, -1, self.C.q) * (h + self.sk * r)) % self.C.q
+        assert s > 0, "Error: cannot sign this message."
+
+        return r, s
+
+    def verify(self, msg, sig):
+        r, s = sig
+        if r < 1 or r >= self.C.q: return False
+        if s < 1 or s >= self.C.q: return False
+        h = int.from_bytes(H(msg), "little")
+        s_inv = pow(s, -1, self.C.q)
+        u = h * s_inv % self.C.q
+        v = r * s_inv % self.C.q
+        P = u * self.C.G + v * self.Q
+        return r == P.x
+
+if __name__ == "__main__":
+
+    try:
+        S = ECDSA()
+        print(f"Public Point Q: ({S.Q.x}, {S.Q.y})")
+        print("Here is a valid signature!")
+        m = os.urandom(24)
+        r, s = S.sign(m)
+        print(f"m = 0x{m.hex()}")
+        print(f"sig = ({r}, {s})")
+        assert S.verify(m, (r, s))
+
+        print("You turn! Give me another one!")
+        r = int(input("r = "))
+        s = int(input("s = "))
+        sig = (r, s)
+        if S.verify(b"All right, everybody be cool, this is a robbery! Give me the flag!", sig):
+            flag = open("flag.txt").read()
+            print(flag)
+        else:
+            print("Nope!")
+    except:
+        print("Please check your inputs.")
+</code></pre>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="row clearfix">
+                    <div class="col-1">
+                        <div class="section-heading">
+                            <h3>FCSC 2023</h3>
+                            <h2 class="section-title">Hackropole</h2>
+                            <p class="section-subtitle">
+                                Lien officiel :
+                                <a target="_blank"
+                                    href="https://hackropole.fr/fr/challenges/crypto/fcsc2023-crypto-cry-me-a-river/">FCSC
+                                    2023 -
+                                    Cry Me a River
+                                </a>
+                                <br />
+                                Auteur: <a target="_blank" href="https://twitter.com/Cryptanalyse">Cryptanalyse</a>
+                            </p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="row clearfix">
+                    <div class="col-1">
+                        <div class="section-heading">
+                            <h3>Apprentissage</h3>
+                            <h2 class="section-title">Documentations et Vidéos</h2>
+                            <p class="section-subtitle">
+                                Aucune documentation pour le moment
+                            </p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="row clearfix">
+                    <div class="col-1">
+                        <div class="section-heading">
+                            <h3>Aide</h3>
+                            <h2 class="section-title">Conseils et indices</h2>
+                            <p class="section-subtitle">
+                                <a target="_blank"
+                                    href="https://discord.com/channels/1175764392307077120/1175764601716092948">Fil sur
+                                    le Discord</a>
+                            </p>
+                        </div>
+                    </div>
+                </article>
+            </section>
+            <!--End of Ctf-->
+        </main>
+        <!--End Main Content Area-->
+
+        <a id="scrollUp" href="#wrapper" style="position: fixed; z-index: 1000;"
+            aria-label="Remonter en haut de la page" title="Remonter en tête de site"></a>
+    </div>
+</body>
+
+</html>
